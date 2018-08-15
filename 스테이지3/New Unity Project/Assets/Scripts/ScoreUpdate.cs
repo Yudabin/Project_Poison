@@ -5,19 +5,34 @@ using UnityEngine.UI;
 
 
 public class ScoreUpdate : MonoBehaviour {
-
-    public static int score = 0;
-    Text scoreLabel;
+    public int score = 0;
+    public Text scoreLabel;
+    public Image ScoreBar ;
+    public int accumulate = 0;
+    public static ScoreUpdate instance = null;
 
     void Awake()
     {
-        score = 0;
-        scoreLabel = GetComponent<Text>();
+        if(instance == null)
+        {
+            instance = this;
+        }
+        else if (instance != this)
+        {
+            Destroy(gameObject);
+        }
     }
-	
-	// Update is called once per frame
-	void Update () {
-        //scoreLabel.text = ScoreManager.score.ToString();
-        scoreLabel.text = "Phone : " + score.ToString();
-	}
+
+    public void ScoreReset()
+    {
+        accumulate = 0;
+        ScoreBar.fillAmount = 0;
+    }
+    public void ScoreSet()
+    {
+        accumulate += 1;
+        ScoreBar.fillAmount += 1/60f;
+        score += 50;
+        scoreLabel.text = score.ToString();
+    }
 }

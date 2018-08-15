@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour {
+
     //이동
     public float movePower = 6f;
     public bool inputLeft = false;
@@ -21,7 +22,7 @@ public class PlayerMovement : MonoBehaviour {
     //public GameObject[] phone;
     public Transform[] PathCenter;
     public GameObject item;
-    public int score;
+    public int score=0;
     public Transform[] itemarr;
     private float TimeLeft = 2.0f;
     private float nextTime = 0.0f;
@@ -53,15 +54,12 @@ public class PlayerMovement : MonoBehaviour {
     public float speed = 20; //속도
 
     // Use this for initialization
-    void Start() {
+    void Awake() {
         rigid = gameObject.GetComponent<Rigidbody2D>();
         animator = gameObject.GetComponentInChildren<Animator>();
         spriteRenderer = gameObject.GetComponentInChildren<SpriteRenderer>();
 
         health = maxHealth;
-
-        UiButtonManager ui = GameObject.FindWithTag("Managers").GetComponent<UiButtonManager>();
-        ui.Init();
 
         for (i = 0; i < PathCenter.Length; i++)
         {
@@ -70,23 +68,6 @@ public class PlayerMovement : MonoBehaviour {
         }
 
         StartCoroutine("ItemTime");
-    }
-
-    void Update()
-    {
-        //Check Health
-        if (health == 0)
-        {
-            if (!isDie)
-                Die();
-            return;
-        }
-        if (isItem == false)
-        {
-            isItem = true;
-            //ItemOn();
-        }
-
     }
     void SetItemOn()
     {
@@ -117,6 +98,7 @@ public class PlayerMovement : MonoBehaviour {
                 yield return new WaitForSeconds(5f);
                 item.SetActive(false);
             }
+           
         }
 
     }
@@ -202,6 +184,8 @@ public class PlayerMovement : MonoBehaviour {
     {
         //rigidBody가 무언가와 충돌할때 호출되는 함수
          //Collider2D other로 부딪힌 객체를 받아온다.
+
+        //적과 충돌
          if (other.CompareTag("enemy") && !isUnBeatTime)
          {
             health -= 25;
@@ -211,10 +195,13 @@ public class PlayerMovement : MonoBehaviour {
                 StartCoroutine("UnBeatTime");
             }
          }
+
+         //아이템충돌
         else if (other.CompareTag("Item"))
         {
             item.SetActive(false);
             isItem = true;
+            ScoreUpdate.instance.ScoreSet();
             StartCoroutine("ItemOn");
         }
 
@@ -232,7 +219,7 @@ public class PlayerMovement : MonoBehaviour {
 
     }
     //크기조정
-    IEnumerator ItemOn()
+    /*IEnumerator ItemOn()
     {
         Vector3 ThisSize = transform.localScale;
         
@@ -242,6 +229,7 @@ public class PlayerMovement : MonoBehaviour {
             {
                 ThisSize.x = ThisSize.y = 30;
                 transform.localScale = ThisSize;
+                break;
             }
             else
             {
@@ -252,11 +240,12 @@ public class PlayerMovement : MonoBehaviour {
             }
               
         }
-    }
-    void CheckItem()
+    }*/
+    /*void CheckItem()
     {
 
-    }
+    }*/
+    /*
     IEnumerator ItemOff()
     {
         Vector3 ThisSize = transform.localScale;
@@ -267,6 +256,7 @@ public class PlayerMovement : MonoBehaviour {
             {
                 ThisSize.x = ThisSize.y = 17;
                 transform.localScale = ThisSize;
+                break;
             }
             else
             {
@@ -277,10 +267,10 @@ public class PlayerMovement : MonoBehaviour {
             }
 
         }
-    }
+    }*/
     //깜박거리기
     IEnumerator UnBeatTime()
-        {
+    {
             int countTime = 0;
             while (countTime < 10)
             {
@@ -294,26 +284,40 @@ public class PlayerMovement : MonoBehaviour {
             spriteRenderer.color = new Color32(255, 255, 255, 255);
 
             isUnBeatTime = false;
-        }
-        /* void OnGUI()
-         {
-             GUILayout.BeginArea(new Rect(0, 0, Screen.width, Screen.height));
-             GUILayout.BeginVertical();
-             GUILayout.Space(10);
-             GUILayout.BeginHorizontal();
-             GUILayout.Space(15);
-             string heart = "";
-             for (int i = 0; i < health; i++)
-             {
-                 heart += "♥";
-             }
-             GUILayout.Label(heart);
-
-             GUILayout.FlexibleSpace();
-             GUILayout.EndHorizontal();
-             GUILayout.FlexibleSpace();
-             GUILayout.EndVertical();
-             GUILayout.EndArea();
-         }*/
     }
+
+    public void LeftDown()
+    {
+        inputLeft = true;
+    }
+    public void LeftUp()
+    {
+        inputLeft = false;
+    }
+    public void RightDown()
+    {
+        inputRight = true;
+    }
+    public void RightUp()
+    {
+        inputRight = false;
+    }
+    public void DownDown()
+    {
+        inputDown = true;
+    }
+    public void DownUp()
+    {
+        inputDown = false;
+    }
+    public void UpDown()
+    {
+        inputUp = true;
+    }
+    public void UpUp()
+    {
+        inputUp = false;
+    }
+}
+
 
