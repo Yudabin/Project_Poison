@@ -19,8 +19,8 @@ public class C_EnemyMove : MonoBehaviour {
 
     [SerializeField]
     Transform[] PathCenter;
-    int[] index1 = { 2, 3, 7, 6, 10, 9, 8, 4, 0, 1, 2, 6, 5, 4, 8, 9, 10, 6, 2, 1, 0, 4, 5, 6, 10, 11, 7, 3, 2, 1, 0, 4, 8, 9, 10, 6, 7, 3, 2, 1, 0, 4, 5, 1, 0, 4, 5, 1, 2, 3, 7, 11, 10, 9, 8, 4, 0, 1, 2, 3, 7, 11, 10, 6, 2, 3, 7, 11, 10, 9, 8, 4, 0, 1, 2, 3, 7, 11, 10, 6, 2, 3, 7, 11, 10, 6, 2, 3, 7, 11, 10, 9, 8 };
-    int[] index2 = { 9, 8, 4, 5, 1, 2, 3, 7, 6, 5, 9, 10, 11, 7, 3, 2, 1, 0, 4, 8, 9, 10, 11, 7, 3, 2, 1, 0, 4, 5, 9, 10, 11, 7, 3, 2, 1, 5, 4, 8, 9, 10, 11, 7, 6, 2, 3, 7, 6, 10, 9, 8, 4, 0, 1, 2, 6, 5, 9, 10, 6, 5, 9, 8, 4, 0, 1, 5, 6, 2, 1, 5, 6, 7, 11, 10, 9, 5, 4, 0, 1, 5, 9, 8, 4, 0, 1, 5, 9, 8, 4, 0, 1, 2 };
+    int[] index1 = { 0, 1, 2, 3, 7, 6, 10, 9, 8, 4, 0, 1, 2, 6, 5, 4, 8, 9, 10, 6, 2, 1, 0, 4, 5, 6, 10, 11, 7, 3, 2, 1, 0, 4, 8, 9, 10, 6, 7, 3, 2, 1, 0, 4, 5, 1, 0, 4, 5, 1, 2, 3, 7, 11, 10, 9, 8, 4, 0, 1, 2, 3, 7, 11, 10, 6, 2, 3, 7, 11, 10, 9, 8, 4, 0, 1, 2, 3, 7, 11, 10, 6, 2, 3, 7, 11, 10, 6, 2, 3, 7, 11, 10};
+    int[] index2 = { 11, 10, 9, 8, 4, 5, 1, 2, 3, 7, 6, 5, 9, 10, 11, 7, 3, 2, 1, 0, 4, 8, 9, 10, 11, 7, 3, 2, 1, 0, 4, 5, 9, 10, 11, 7, 3, 2, 1, 5, 4, 8, 9, 10, 11, 7, 6, 2, 3, 7, 6, 10, 9, 8, 4, 0, 1, 2, 6, 5, 9, 10, 6, 5, 9, 8, 4, 0, 1, 5, 6, 2, 1, 5, 6, 7, 11, 10, 9, 5, 4, 0, 1, 5, 9, 8, 4, 0, 1, 5, 9, 8, 4, 0 };
     [SerializeField]
     float moveSpeed = 2f;
 
@@ -28,7 +28,7 @@ public class C_EnemyMove : MonoBehaviour {
 
     public int i = 0;
     public bool indexpattern = false;
-
+    
     // Use this for initialization
     void Awake() {
         ThisBody = GetComponent<Rigidbody2D>();
@@ -36,11 +36,15 @@ public class C_EnemyMove : MonoBehaviour {
         
         handsAnimator.SetBool("walk", true);
         bodyAnimator.SetBool("walk", true);
-
-        StartCoroutine("Move");
-
+        
 
     }
+    
+    void OnEnable()
+    {
+        StartCoroutine("Move");
+    }
+    
 
     // Update is called once per frame
     void Update() {
@@ -112,6 +116,7 @@ public class C_EnemyMove : MonoBehaviour {
     public void InitPosition(int index)
     {
         transform.position = PathCenter[index].transform.position;
+        i = index;
 
         if (transform.position == PathCenter[index].transform.position)
         {
@@ -120,7 +125,10 @@ public class C_EnemyMove : MonoBehaviour {
         if (index == PathCenter.Length)
             index = 0;
     }
-
+    public void StopMove()
+    {
+        StopCoroutine("Move");
+    }
     IEnumerator Move()
     {
         while (true)

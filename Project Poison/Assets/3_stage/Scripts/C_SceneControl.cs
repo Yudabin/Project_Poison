@@ -7,7 +7,7 @@ public class C_SceneControl : MonoBehaviour {
     Image TimeBar;
     public float maxTime = 2.4f;
     float timeLeft;
-    public GameObject timer;
+    //public GameObject timer;
 
     //public Text timerText;
     //private float startTime;
@@ -15,7 +15,7 @@ public class C_SceneControl : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
         //startTime = Time.time;
-        timer.SetActive(false);
+        //timer.SetActive(false);
         TimeBar = GetComponent<Image>();
         timeLeft = maxTime;
 	}
@@ -37,8 +37,7 @@ public class C_SceneControl : MonoBehaviour {
         }
         else
         {
-            timer.SetActive(true);
-            Time.timeScale = 0;
+            C_ScoreUpdate.instance.Result();
         }
     }
 }

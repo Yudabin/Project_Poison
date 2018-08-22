@@ -7,6 +7,9 @@ using UnityEngine.SceneManagement;
 
 public class C_ScoreUpdate : MonoBehaviour {
     public int score = 0;
+    public Image TimeBar;
+    float timeLeft;
+    public float maxTime = 3f;
     public Text scoreLabel;
     public Image ScoreBar ;
     public int accumulate = 0;
@@ -23,7 +26,8 @@ public class C_ScoreUpdate : MonoBehaviour {
     private Transform transformC;
 
     // UIScreen
-    public GameObject TimeStop_Screen, GameOver_Screen;
+    public GameObject TimeStop_Screen, GameOver_Screen, Result_Screen, Good, Bad;
+    public GameObject RemoveCanvas;
 
 
     void Awake()
@@ -41,6 +45,8 @@ public class C_ScoreUpdate : MonoBehaviour {
         hourglassB.value = playerMaxHP - playerHP;
         hourglassC.value = 0;
         transformC = hourglassC.GetComponent<Transform>();
+        TimeBar = GetComponent<Image>();
+        timeLeft = maxTime;
 
     }
 
@@ -61,6 +67,7 @@ public class C_ScoreUpdate : MonoBehaviour {
     }
     void Update()
     {
+        
         // 모래시계 UI 관련
         if (playerHP > 0)
         {
@@ -135,6 +142,32 @@ public class C_ScoreUpdate : MonoBehaviour {
     {
         moveSand = true;
         playerHP -= power;
+    }
+
+    // 게임 오버 창 뜨게 하기
+    public void GameOver()
+    {
+        Time.timeScale = 0;
+        RemoveCanvas.SetActive(false);
+        GameOver_Screen.SetActive(true);
+    }
+
+    // 게임 결과 창 뜨게 하기
+    public void Result()
+    {
+        Time.timeScale = 0;
+        RemoveCanvas.SetActive(false);
+        Result_Screen.SetActive(true);
+        if (playerHP >= 150)
+        {
+            Good.SetActive(true);
+            Bad.SetActive(false);
+        }
+        else
+        {
+            Good.SetActive(false);
+            Bad.SetActive(true);
+        }
     }
 
     // 게임 일시 정지

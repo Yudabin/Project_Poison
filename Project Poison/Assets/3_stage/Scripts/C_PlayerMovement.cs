@@ -14,6 +14,14 @@ public class C_PlayerMovement : MonoBehaviour {
 
     //이동
     float dirX, dirY;
+    int index = 0;
+    public bool inputLeft = false;
+    public bool inputRight = false;
+    public bool inputUp = false;
+    public bool inputDown = false;
+    public float movePower = 6f;
+    int k = 0;
+    Vector3 moveVelocity = Vector3.zero;
 
     //속도
     public float MaxSpeed = 10f, Speed = 5f;
@@ -33,18 +41,18 @@ public class C_PlayerMovement : MonoBehaviour {
     public Transform[] itemarr;
 
     private Transform ThisTransform = null;
-    int i = 1;
+    int i = 0;
     public float PathCenterposX = 5f;
     public GameObject[] Enemy;
     private C_EnemyMove[] EnemyScript = null;
     int EnemyIndex = 0;
     bool isEnemyIndex = false;
 
+    int PathIndex = 0;
+
     //충돌
     Rigidbody2D rigid;
-
-    //애니메이터
-    Animator animator;
+    public Transform[] random_Pos;
 
     // 애니메이션을 위한
     public Animator faceAnimator;
@@ -57,14 +65,18 @@ public class C_PlayerMovement : MonoBehaviour {
     bool isUnBeatTime = false;
 
     bool flag = true;
+    int[] index1 = { 0, 1, 2, 3, 7, 6, 10, 9, 8, 4, 0, 1, 2, 6, 5, 4, 8, 9, 10, 6, 2, 1, 0, 4, 5, 6, 10, 11, 7, 3, 2, 1, 0, 4, 8, 9, 10, 6, 7, 3, 2, 1, 0, 4, 5, 1, 0, 4, 5, 1, 2, 3, 7, 11, 10, 9, 8, 4, 0, 1, 2, 3, 7, 11, 10, 6, 2, 3, 7, 11, 10, 9, 8, 4, 0, 1, 2, 3, 7, 11, 10, 6, 2, 3, 7, 11, 10, 6, 2, 3, 7, 11, 10 };
+    int[] index2 = { 11, 10, 9, 8, 4, 5, 1, 2, 3, 7, 6, 5, 9, 10, 11, 7, 3, 2, 1, 0, 4, 8, 9, 10, 11, 7, 3, 2, 1, 0, 4, 5, 9, 10, 11, 7, 3, 2, 1, 5, 4, 8, 9, 10, 11, 7, 6, 2, 3, 7, 6, 10, 9, 8, 4, 0, 1, 2, 6, 5, 9, 10, 6, 5, 9, 8, 4, 0, 1, 5, 6, 2, 1, 5, 6, 7, 11, 10, 9, 5, 4, 0, 1, 5, 9, 8, 4, 0, 1, 5, 9, 8, 4, 0 };
+    public bool indexpattern = false;
 
     Vector3 movement;
     public float speed = 20; //속도
 
+    
+
     // Use this for initialization
     void Awake() {
         rigid = GetComponent<Rigidbody2D>();
-        animator = GetComponentInChildren<Animator>();
         ThisTransform = GetComponent<Transform>();
 
         health = maxHealth;
@@ -78,6 +90,8 @@ public class C_PlayerMovement : MonoBehaviour {
             item.transform.position = PathCenter[i].transform.position;
             item.SetActive(false);
         }
+        ThisTransform.position = PathCenter[5].position;
+        i = 5;
 
         StartCoroutine("ItemTime");
     }
@@ -114,37 +128,64 @@ public class C_PlayerMovement : MonoBehaviour {
         }
 
     }
-
-    void FixedUpdate()
+    void Move()
     {
-        dirX = CrossPlatformInputManager.GetAxis("Horizontal");
-        dirY = CrossPlatformInputManager.GetAxis("Vertical");
-
-        rigid.velocity = new Vector2(dirX * speed, dirY * speed);
-
-        // 필요한 경우 방향을 바꾼다.
-        if (((dirX < 0f && Facing == FaceDirection.FaceRight) || (dirX > 0f && Facing == FaceDirection.FaceLeft)))
+        bodyAnimator.SetBool("walk", false);
+        handsAnimator.SetBool("walk",false);
+    }
+    public void Move_Left()
+    {
+        if (i == 0 || i == 4 || i == 8)
+            return;
+        bodyAnimator.SetBool("walk", true);
+        handsAnimator.SetBool("walk", true);
+        Invoke("Move", 1f);
+        transform.position = new Vector3(PathCenter[i - 1].transform.position.x, PathCenter[i - 1].transform.position.y, 0);
+        i--;
+        if(Facing == FaceDirection.FaceRight)
+        {
             FlipDirection();
-        // 속도를 제한한다.
-        rigid.velocity = new Vector2(Mathf.Clamp(rigid.velocity.x, -MaxSpeed, MaxSpeed), Mathf.Clamp(rigid.velocity.y, -MaxSpeed, MaxSpeed));
-
-        // 이동 여부 확인
-        isWalk = handsAnimator.GetBool("walk");
-
-        // 걷는 모션
-        if (isWalk && rigid.velocity.x == 0 && rigid.velocity.y ==0)
-        {
-            handsAnimator.SetBool("walk", false);
-            bodyAnimator.SetBool("walk", false);
-        }
-        if (!isWalk && (rigid.velocity.x != 0 || rigid.velocity.y !=0))
-        {
-            handsAnimator.SetBool("walk", true);
-            bodyAnimator.SetBool("walk", true);
         }
 
     }
+    public void Move_Right()
+    {
+        if (i == 3 || i == 7 || i == 11)
+            return;
+        bodyAnimator.SetBool("walk", true);
+        handsAnimator.SetBool("walk", true);
+        Invoke("Move", 1f);
+        transform.position = new Vector3(PathCenter[i + 1].transform.position.x, PathCenter[i + 1].transform.position.y, 0);
+        i++;
+        if (Facing == FaceDirection.FaceLeft)
+        {
+            FlipDirection();
+        }
 
+    }
+    public void Move_Up()
+    {
+        if (i == 0 || i == 1 || i == 2 || i==3)
+            return;
+        bodyAnimator.SetBool("walk", true);
+        handsAnimator.SetBool("walk", true);
+        Invoke("Move", 1f);
+        transform.position = new Vector3(PathCenter[i - 4].transform.position.x, PathCenter[i - 4].transform.position.y, 0);
+        i-=4;
+
+    }
+    public void Move_Down()
+    {
+        if (i == 8 || i == 9 || i == 10 || i==11)
+            return;
+        bodyAnimator.SetBool("walk", true);
+        handsAnimator.SetBool("walk", true);
+        Invoke("Move", 1f);
+        transform.position = new Vector3(PathCenter[i +4].transform.position.x, PathCenter[i +4].transform.position.y, 0);
+        i+=4;
+
+    }
+    
     // 캐릭터 방향을 바꾼다.
     public void FlipDirection()
     {
@@ -153,26 +194,11 @@ public class C_PlayerMovement : MonoBehaviour {
         LocalScale.x *= -1f;
         ThisTransform.localScale = LocalScale;
     }
-
-    void Die()
-    {
-        //Die Flag On
-        isDie = true;
-
-        rigid.velocity = Vector2.zero;
-
-        //Die Motion
-        animator.Play("Die");
-
-    }
+    
     void RestartStage()
     {
         GameManager.RestartStage();
     }
-
-    // Update is called once per frame
-    //moving
-   
 
     void OnTriggerEnter2D(Collider2D other)
     {
@@ -183,11 +209,7 @@ public class C_PlayerMovement : MonoBehaviour {
          {
             if (C_ScoreUpdate.instance.isItem)
             {
-                if(!isEnemyIndex)
-                {
-                    isEnemyIndex = true;
-                    EnemyIndex = other.GetComponent<C_EnemyMove>().PathCenterIndex;
-                }
+                other.GetComponent<C_EnemyMove>().StopMove();
                 float enemyX = other.transform.position.x;
                 Rigidbody2D enemyBody = other.GetComponent<Rigidbody2D>();
                 if (enemyX - transform.position.x > 0)
@@ -207,6 +229,7 @@ public class C_PlayerMovement : MonoBehaviour {
                 {
                     isUnBeatTime = true;
                     StartCoroutine("UnBeatTime");
+                    Random_Position();
                 }
             }
          }
@@ -220,13 +243,42 @@ public class C_PlayerMovement : MonoBehaviour {
         }
 
     }
+    //적과 충돌하면 랜덤위치로 이동
+    void Random_Position()
+    {
+        int j = 0;
+        bool[] tempP = new bool[PathCenter.Length];
+        for (int k = 0; k < PathCenter.Length; k++)
+        {
+            tempP[k] = true;
+            for (int a = 0; a < Enemy.Length; a++)
+            {
+                if (PathCenter[k].position == Enemy[a].transform.position)
+                {
+                    tempP[k] = false;
+                    break;
+
+                }
+            }
+        }
+        int random = Random.Range(0, tempP.Length);
+        while (!tempP[random])
+        {
+            random = Random.Range(0, tempP.Length);
+        }
+        Transform temp = PathCenter[random];
+        ThisTransform.position = temp.position;
+        
+        StartCoroutine("UnBeatTime");// 이동후 깜박이기
+        
+    }
 
     public void CheckItem()
     {
         StartCoroutine("Itemact");
     }
 
-    
+
     // 크기 조정
     IEnumerator Itemact()
     {
@@ -234,15 +286,15 @@ public class C_PlayerMovement : MonoBehaviour {
         Vector3 ThisSize = transform.localScale;
         while (true)
         {
-            if (Mathf.Abs(ThisSize.x) == 30)
+            if (Mathf.Abs(ThisSize.x) == 7)
             {
                 if (ThisSize.x < 0)
                 {
-                    ThisSize.x = -30;
-                    ThisSize.y = 30;
+                    ThisSize.x = -7;
+                    ThisSize.y = 7;
                 }
                 else
-                    ThisSize.x = ThisSize.y = 30;
+                    ThisSize.x = ThisSize.y = 7;
                 transform.localScale = ThisSize;
                 break;
             }
@@ -263,17 +315,18 @@ public class C_PlayerMovement : MonoBehaviour {
         C_ScoreUpdate.instance.ScoreReset();
         yield return new WaitForSeconds(keeptime);
 
+        //크기원래대로
         while (true)
         {
-            if (Mathf.Abs(ThisSize.x) == 17)
+            if (Mathf.Abs(ThisSize.x) == 3)
             {
                 if (ThisSize.x < 0)
                 {
-                    ThisSize.x = -17;
-                    ThisSize.y = 17;
+                    ThisSize.x = -3;
+                    ThisSize.y = 3;
                 }
                 else
-                    ThisSize.x = ThisSize.y = 17;
+                    ThisSize.x = ThisSize.y = 3;
                 transform.localScale = ThisSize;
                 break;
             }
@@ -289,24 +342,53 @@ public class C_PlayerMovement : MonoBehaviour {
             }
 
         }
+
+        //아이템 사용시 enemy 패턴
         C_ScoreUpdate.instance.isItem = false;
-        yield return new WaitForSeconds(3f);
+        yield return new WaitForSeconds(1f);
         for (int i = 0; i < Enemy.Length; i++)
         {
             Enemy[i].SetActive(false);
         }
-        yield return new WaitForSeconds(1f);
-        for (int i = 0; i<Enemy.Length; i++)
+        yield return new WaitForSeconds(2f);
+        
+        for (int i = 0; i < Enemy.Length; i++)
         {
-            EnemyScript[i].InitPosition(EnemyIndex);
-            Enemy[i].SetActive(true);
-            EnemyScript[i].isDrag = false;
+            if (i < 3)
+            {
+                EnemyScript[i].InitPosition(i);
+                //Enemy[i].transform.position = PathCenter[index1[i]].position;
+                Enemy[i].SetActive(true);
+                EnemyScript[i].isDrag = false;
+            }
+            else
+            {
+                EnemyScript[i].InitPosition(i-3);
+                //Enemy[i].transform.position = PathCenter[index2[i-3]].position;
+                Enemy[i].SetActive(true);
+                EnemyScript[i].isDrag = false;
+            }
         }
+        //while (true)
+        //{
+        //    for (int i = 0; i < Enemy.Length; i++)
+        //    {
+        //        if (indexpattern)
+        //            Enemy[i].transform.position = PathCenter[index1[i]].position;
+        //        else
+        //            Enemy[i].transform.position = PathCenter[index2[i]].position;
+        //        yield return new WaitForSeconds(1f);
+        //        if (i == index1.Length)
+        //            i = 0;
+        //    }
+            
+        //}
     }
 
     //깜박거리기
     IEnumerator UnBeatTime()
     {
+
             int countTime = 0;
             while (countTime < 10)
             {
@@ -325,7 +407,7 @@ public class C_PlayerMovement : MonoBehaviour {
     
         isUnBeatTime = false;
     }
-
+    
 }
 
 
